@@ -1,0 +1,36 @@
+class User(BaseEntity):
+    def __init__(self, entity_id: int, name: str, email: str, password_hash: str):
+        super().__init__(entity_id)
+        self.name = name
+        self._email = email          # Encapsulated
+        self._password = password_hash # Encapsulated
+        self.notifications_enabled = True
+        
+        # Associations
+        self.selected_problem: Optional[Problem] = None
+        self.calendar = Calendar(entity_id * 100)
+        self.progress_records: List[ProgressRecord] = []
+
+    # Getters/Setters enforcing encapsulation
+    @property
+    def email(self) -> str:
+        return self._email
+
+    def select_problem(self, problem: Problem):
+        self.selected_problem = problem
+
+    def add_exercise_to_calendar(self, exercise: Exercise, target_date: datetime):
+        self.calendar.add_exercise(exercise, target_date)
+
+    def complete_task(self, task: Task):
+        task.finish_exercise()
+        self.track_progress(task)
+
+    def track_progress(self, task: Task):
+        # Simplistic tracking logic finding today's record
+        today = datetime.now().date()
+        record = next((r for r in self.progress_records if r.date == today), None)
+        if not record:
+            record = ProgressRecord(len(self.progress_records) + 1, today)
+            self.progress_records.append(record)
+        record.tasks.append(task)
