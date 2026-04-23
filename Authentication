@@ -1,0 +1,19 @@
+class AuthenticationService(BaseService):
+    def initialize_service(self) -> bool:
+        print("Auth Service Initialized")
+        return True
+
+    def login(self, email: str, password: str) -> Optional[User]:
+        # Simulated DB lookup
+        if email == "oktay@example.com":
+            return User(101, "Oktay", email, "hashed_pwd_123")
+        return None
+
+class ProblemSelectionService(BaseService):
+    def initialize_service(self) -> bool:
+        return True
+
+    def get_exercises_for_problem(self, problem: Problem) -> List[Exercise]:
+        # Simulated database fetch based on problem
+        vid = Video(301, "neck_stretch.mp4", "Instructional")
+        return [Exercise(201, "Neck Stretch", "A simple stretch", problem.name, vid)]
