@@ -1,0 +1,12 @@
+from abc import ABC, abstractmethod
+from datetime import datetime, date
+from typing import List, Optional
+from enum import Enum
+
+class TaskState(Enum):
+    SCHEDULED = "Scheduled"
+    IN_PROGRESS = "InProgress"
+    COMPLETED = "Completed"
+    MISSED = "Missed"
+    RESCHEDULED = "Rescheduled"
+    ARCHIVED = "Archived"
