@@ -1,0 +1,20 @@
+class BaseEntity(ABC):
+    """Abstract base class establishing identity (Inheritance)."""
+    def __init__(self, entity_id: int):
+        self._id = entity_id  # Encapsulated ID
+
+    @property
+    def id(self) -> int:
+        return self._id
+
+class MediaContent(ABC):
+    """Interface demonstrating Polymorphism."""
+    @abstractmethod
+    def play(self) -> str:
+        pass
+
+class BaseService(ABC):
+    """Abstract service layer interface."""
+    @abstractmethod
+    def initialize_service(self) -> bool:
+        pass
