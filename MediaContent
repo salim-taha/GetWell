@@ -1,0 +1,84 @@
+class Video(BaseEntity, MediaContent):
+    def __init__(self, entity_id: int, url: str, video_type: str):
+        super().__init__(entity_id)
+        self._url = url
+        self.video_type = video_type
+
+    @property
+    def url(self) -> str:
+        return self._url
+
+    # Polymorphic implementation of the abstract method
+    def play(self) -> str:
+        return f"Playing {self.video_type} video from {self._url}"
+
+class Problem(BaseEntity):
+    def __init__(self, entity_id: int, name: str, description: str):
+        super().__init__(entity_id)
+        self.name = name
+        self.description = description
+
+class Exercise(BaseEntity):
+    def __init__(self, entity_id: int, name: str, description: str, problem_type: str, video: Optional[Video] = None):
+        super().__init__(entity_id)
+        self.name = name
+        self.description = description
+        self.problem_type = problem_type
+        self.video = video
+
+    def start_session(self) -> str:
+        return f"Session started for {self.name}"
+
+    def watch_video(self) -> str:
+        if self.video:
+            return self.video.play()
+        return "No video linked to this exercise."
+
+class Task(BaseEntity):
+    def __init__(self, entity_id: int, content: str):
+        super().__init__(entity_id)
+        self.content = content
+        self._state = TaskState.SCHEDULED  # Encapsulated state machine
+        self.completed = False
+
+    @property
+    def state(self) -> TaskState:
+        return self._state
+
+    # State Machine Transitions
+    def start_exercise(self):
+        if self._state == TaskState.SCHEDULED:
+            self._state = TaskState.IN_PROGRESS
+
+    def finish_exercise(self):
+        if self._state == TaskState.IN_PROGRESS:
+            self._state = TaskState.COMPLETED
+            self.completed = True
+
+    def mark_missed(self):
+        if self._state in [TaskState.SCHEDULED, TaskState.IN_PROGRESS]:
+            self._state = TaskState.MISSED
+
+class CalendarEvent(BaseEntity):
+    def __init__(self, entity_id: int, event_date: datetime, exercise: Exercise):
+        super().__init__(entity_id)
+        self.date = event_date
+        self.exercise = exercise
+
+class Calendar(BaseEntity):
+    def __init__(self, entity_id: int):
+        super().__init__(entity_id)
+        self._exercise_events: List[CalendarEvent] = []
+
+    def add_exercise(self, exercise: Exercise, target_date: datetime):
+        new_event = CalendarEvent(len(self._exercise_events) + 1, target_date, exercise)
+        self._exercise_events.append(new_event)
+
+    def show_daily_plan(self, target_date: date) -> List[CalendarEvent]:
+        return [event for event in self._exercise_events if event.date.date() == target_date]
+
+class ProgressRecord(BaseEntity):
+    def __init__(self, entity_id: int, record_date: date):
+        super().__init__(entity_id)
+        self.date = record_date
+        self.tasks: List[Task] = []
